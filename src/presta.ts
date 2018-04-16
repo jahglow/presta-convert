@@ -301,8 +301,10 @@ export default class Presta {
     return result[resourceName];
   }
 
+  getResourceList = (resourceName, query) => this.resource(resourceName, resourceName, query);
+
   async getGenericResource(collectionName, collectionItemName, query) {
-    const collection = await this.resource(collectionName, collectionName, query);
+    const collection = await this.getResourceList(collectionName, query);
     return await Promise.all(
       collection.map(item => this.getGenericResourceItem({item, collectionName, collectionItemName}))
     );
@@ -320,6 +322,16 @@ export default class Presta {
       sanitizedEntry
     );
     return parsedEntry;
+  }
+
+  _discountPrice=async (price, id)=>{
+    const collectionName = 'specific_prices'
+    const prices = await this.getGenericResource(collectionName, null, {'filter[id_product]': id});
+    const priceInt = this._toNumber(price)
+    if(prices.length === 0) return priceInt;
+    console.log(prices);
+    const withDiscount = priceInt - prices[0].reduction;
+    return withDiscount
   }
 
   _getLanguageString = data => {
@@ -379,6 +391,10 @@ export default class Presta {
 
   get models() {
     return {
+      specific_price:{
+        _sanitize:['reduction'],
+        reduction: this._toNumber,
+      },
       product_option: {
         name: this._getLanguageString,
         public_name: this._getLanguageString,
@@ -417,7 +433,7 @@ export default class Presta {
         force_as_new: this._toBoolean,
         reserved: this._toBoolean,
         restored: this._toBoolean,
-        price: this._toNumber,
+        price: this._discountPrice,
         id_category_default: this._toNumber,
         id_default_image: this._toNumber,
         date_add: this._toDate,
@@ -435,6 +451,5 @@ export default class Presta {
 
   // client-facing api
   getProducts = query => this.getGenericResource('products', null, query);
-  getProductsList = query => this.resource('products', 'products', query);
   getProduct = id => this.getGenericResourceItem({item: {id}, collectionName: 'products'});
 };

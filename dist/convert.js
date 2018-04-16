@@ -385,10 +385,12 @@ class Convert {
     }
     titleDescription() {
         const { name, description } = this.source;
-        return {
-            title: name,
-            description: description.replace(/<[^>]*>?/g, ''),
-        };
+        const result = {};
+        if (name)
+            result.title = name;
+        if (description)
+            result.description = description.replace(/<[^>]*>?/g, '');
+        return result;
     }
     price() {
         return {

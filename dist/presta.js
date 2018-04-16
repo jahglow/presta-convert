@@ -286,6 +286,17 @@ const categories = [
 const toObject = collection => collection.reduce((acc, cat) => Object.assign({}, acc, { [cat.id]: cat }), {});
 class Presta {
     constructor(webServiceConfig) {
+        this.getResourceList = (resourceName, query) => this.resource(resourceName, resourceName, query);
+        this._discountPrice = (price, id) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const collectionName = 'specific_prices';
+            const prices = yield this.getGenericResource(collectionName, null, { 'filter[id_product]': id });
+            const priceInt = this._toNumber(price);
+            if (prices.length === 0)
+                return priceInt;
+            console.log(prices);
+            const withDiscount = priceInt - prices[0].reduction;
+            return withDiscount;
+        });
         this._getLanguageString = data => {
             if (Array.isArray(data)) {
                 const item = data.find(item => Number(item.id) === this.webservice.options.language);
@@ -336,7 +347,6 @@ class Presta {
         });
         // client-facing api
         this.getProducts = query => this.getGenericResource('products', null, query);
-        this.getProductsList = query => this.resource('products', 'products', query);
         this.getProduct = id => this.getGenericResourceItem({ item: { id }, collectionName: 'products' });
         this.webservice = new webservice_1.default(webServiceConfig);
         this._cache = {
@@ -353,7 +363,7 @@ class Presta {
     }
     getGenericResource(collectionName, collectionItemName, query) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const collection = yield this.resource(collectionName, collectionName, query);
+            const collection = yield this.getResourceList(collectionName, query);
             return yield Promise.all(collection.map(item => this.getGenericResourceItem({ item, collectionName, collectionItemName })));
         });
     }
@@ -371,6 +381,10 @@ class Presta {
     }
     get models() {
         return {
+            specific_price: {
+                _sanitize: ['reduction'],
+                reduction: this._toNumber,
+            },
             product_option: {
                 name: this._getLanguageString,
                 public_name: this._getLanguageString,
@@ -408,7 +422,7 @@ class Presta {
                 force_as_new: this._toBoolean,
                 reserved: this._toBoolean,
                 restored: this._toBoolean,
-                price: this._toNumber,
+                price: this._discountPrice,
                 id_category_default: this._toNumber,
                 id_default_image: this._toNumber,
                 date_add: this._toDate,
