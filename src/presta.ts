@@ -1,5 +1,5 @@
-const pick = require('lodash/pick');
-const WebService = require('./webservice');
+import {pick} from 'lodash';
+import WebService from './webservice';
 
 const product_features = [
   {id: 9, position: '11', name: 'Rezervuota'},
@@ -286,7 +286,7 @@ const categories = [
 
 const toObject = collection => collection.reduce((acc, cat) => Object.assign({}, acc, {[cat.id]: cat}), {});
 
-module.exports = class Presta {
+export default class Presta {
   constructor(webServiceConfig) {
     this.webservice = new WebService(webServiceConfig);
     this._cache = {

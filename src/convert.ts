@@ -1,12 +1,3 @@
-({
-  babel: {
-    polyfill: true,
-  },
-  node: '/Users/johnarcher/.nvm/versions/node/v8.9.4/bin/node',
-  recycle: true,
-  delay: 1500,
-});
-
 const feature_relations = {
   dimensions: {
     title: [
@@ -281,7 +272,7 @@ const feature_relations = {
   ],
 };
 
-module.exports = class Convert {
+export default class Convert {
   constructor({source, assignedManager, creator, changeDateAdded}) {
     this.source = source;
     this.assignedManager = assignedManager;
@@ -445,110 +436,4 @@ module.exports = class Convert {
       }
     }, {});
   };
-};
-
-const item = {
-  visibility: 'both',
-  associations: {
-    categories: [
-      {id: 2, id_parent: 1, name: 'Home', link_rewrite: 'home'},
-      {id: 607, id_parent: 2, name: 'Мебель ', link_rewrite: 'mebel-'},
-      {
-        id: 635,
-        id_parent: 607,
-        rel: 'stolovie-gruppi',
-        name: 'Комплекты для столовой ',
-        link_rewrite: 'komplekty-dlya-stolovoj-',
-      },
-    ],
-    product_features: [
-      {id_feature_value: 43463, id: 18, id_feature: '18', custom: '1', value: '1.35', position: '1', name: 'Длина'},
-      {id_feature_value: 43464, id: 19, id_feature: '19', custom: '1', value: '1.08', position: '2', name: 'Ширина'},
-      {id_feature_value: 43465, id: 20, id_feature: '20', custom: '1', value: '0.75', position: '3', name: 'Высота'},
-      {id_feature_value: 43466, id: 73, id_feature: '73', custom: '1', value: '0.44', position: '4', name: 'Вставка'},
-      {id_feature_value: 377, id: 14, id_feature: '14', custom: '0', value: 'Чиппендейл', position: '5', name: 'Стиль'},
-      {
-        id_feature_value: 403,
-        id: 15,
-        id_feature: '15',
-        custom: '0',
-        value: 'Середина XX векa',
-        position: '6',
-        name: 'Период',
-      },
-      {
-        id_feature_value: 302,
-        id: 17,
-        id_feature: '17',
-        custom: '0',
-        value: 'Англия',
-        position: '7',
-        name: 'Страна происхождения',
-      },
-      {id_feature_value: 318, id: 16, id_feature: '16', custom: '0', value: 'Кожа', position: '8', name: 'Материал'},
-      {
-        id_feature_value: 316,
-        id: 16,
-        id_feature: '16',
-        custom: '0',
-        value: 'Красное дерево',
-        position: '8',
-        name: 'Материал',
-      },
-      {
-        id_feature_value: 43467,
-        id: 33,
-        id_feature: '33',
-        custom: '1',
-        value: '0,55',
-        position: '23',
-        name: 'Стула  длина',
-      },
-      {
-        id_feature_value: 43468,
-        id: 34,
-        id_feature: '34',
-        custom: '1',
-        value: '0,60',
-        position: '24',
-        name: 'Стула ширина',
-      },
-      {
-        id_feature_value: 43469,
-        id: 35,
-        id_feature: '35',
-        custom: '1',
-        value: '0,96',
-        position: '25',
-        name: 'Стула высота',
-      },
-    ],
-    images: [
-      {id: '82899'},
-      {id: '82905'},
-      {id: '82900'},
-      {id: '82901'},
-      {id: '82902'},
-      {id: '82903'},
-      {id: '82904'},
-      {id: '82906'},
-      {id: '82907'},
-      {id: '82908'},
-      {id: '82909'},
-      {id: '82910'},
-    ],
-  },
-  description:
-    '<p><span style="text-decoration: underline;"><strong>Размеры:</strong></span> <em><strong>стол</strong></em> 1,35x1,08+(0,44)м.; h -0,75 м.; <em><strong>стул</strong></em> h-0,97 м.<br />комплект мебели для столовой, стиль «чиппендейл», середина ХХ века, Англия. <br /> Комплект мебели для столовой в классическом стиле «чиппендейл» отличается элегантным дизайном, состоит из раздвижного стола и 6 стульев. Ножки мебели - типичного стиля «чиппендейл», в форме лапы орла, держащей шар, верхняя часть стола декорирована рельефным орнаментом в форме вееров. Рабочая поверхность стола четырехугольной формы с закруглёнными углами, украшена насечками, края закруглены, реставрирована. В дизайне стульев также преобладают грациозные формы и линии. Спинки четырёхугольные, с волнистыми верхними краями, посередине, в центре, расширяются, украшены ажурными композициями в стиле бароко. Сиденья стульев покрыты натуральной светло-коричневой кожей.<br /> Стиль «чиппендейл» в изготовлении английской мебели появился около 1750 года, названный так в честь крупнейшего мастера английского мебельного искусства Томаса Чиппендейл (1718-1779). Это - смесь барокко и французского рококо, которая характеризуется практичностью, комфортом, легкостью, гибкостью и простой силуэтов. Отличительная особенность - ножки типа «cabriole» с лапой орла, держащей шар. Так же - роскошная древесина темного цвета, как правило, это красное или черное дерево.</p>',
-  certified: false,
-  force_as_new: false,
-  name: 'Набор мебели для столовой',
-  price: 1190,
-  link_rewrite: 'nabor-mebeli-dlya-stolovoj',
-  reserved: false,
-  restored: false,
-  id_category_default: '635',
-  id_default_image: 82899,
-  date_add: 1450448585000,
-  date_upd: 1522998492000,
 };

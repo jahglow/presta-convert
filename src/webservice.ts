@@ -1,6 +1,6 @@
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
-module.exports = class WebService {
+export default class WebService {
   constructor(options) {
     this.options = options;
   }
