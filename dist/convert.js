@@ -289,18 +289,18 @@ class Convert {
                 const feature = features.find(feature => feature.id === schema);
                 if (!feature)
                     return acc;
-                return Object.assign({}, acc, { [key]: typeof process === 'function' ? process(feature) : feature.value });
+                return Object.assign({}, acc, { [key]: typeof process === 'function' ? process(feature) : feature.value || null });
             };
             return featureTypes.reduce((acc, ft) => {
                 const schema = feature_relations[ft];
                 if (ft === 'material') {
-                    return findMatch(schema, acc, ft, feature => [{ material: feature.value }]);
+                    return findMatch(schema, acc, ft, feature => [{ material: feature.value || null }]);
                 }
                 if (typeof schema === 'number') {
                     return findMatch(schema, acc, ft);
                 }
                 if (ft === 'style') {
-                    const style = findMatch(schema[0], {}, ft, feature => schema[1][feature.id_feature_value]);
+                    const style = findMatch(schema[0], {}, ft, feature => schema[1][feature.id_feature_value] || null);
                     return style ? Object.assign({}, acc, style) : acc;
                 }
                 else if (ft === 'dimensions') {
