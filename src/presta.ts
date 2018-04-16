@@ -305,6 +305,10 @@ export default class Presta {
 
   async getGenericResource(collectionName, collectionItemName, query) {
     const collection = await this.getResourceList(collectionName, query);
+    if(!Array.isArray(collection)){
+      console.log('X', 'not found', collectionName, collectionItemName, query);
+      return [];
+    }
     return await Promise.all(
       collection.map(item => this.getGenericResourceItem({item, collectionName, collectionItemName}))
     );
@@ -329,7 +333,6 @@ export default class Presta {
     const prices = await this.getGenericResource(collectionName, null, {'filter[id_product]': id});
     const priceInt = this._toNumber(price)
     if(prices.length === 0) return priceInt;
-    console.log(prices);
     const withDiscount = priceInt - prices[0].reduction;
     return withDiscount
   }
@@ -345,6 +348,10 @@ export default class Presta {
   _toDate = data => new Date(data).getTime();
 
   _getCachedCollection = (collection, cache = false, getItem) => async itemConfig => {
+    if(!collection){
+      console.warn('empty collection for', itemConfig)
+      return []
+    } 
     return await Promise.all(
       collection.map(async _item => {
         const item = typeof getItem === 'function' ? getItem(_item) : _item;
@@ -373,11 +380,14 @@ export default class Presta {
     const parsedFeatures = await this._getCachedCollection(product_features, true)({
       collectionName: 'product_features',
     });
-    const parsedFeatureValues = await this._getCachedCollection(product_features, false, ({id_feature_value}) => ({
-      id: id_feature_value,
-    }))({
-      collectionName: 'product_feature_values',
-    });
+    const parsedFeatureValues = await this._getCachedCollection(
+      product_features, 
+      false, 
+      ({id_feature_value}) => ({
+        id: id_feature_value,
+      }))({
+        collectionName: 'product_feature_values',
+      });
     const compoundFeatures = parsedFeatures.map((feature, index) =>
       Object.assign({}, {id_feature_value: parsedFeatureValues[index].id, ...parsedFeatureValues[index]}, feature)
     );
@@ -415,6 +425,8 @@ export default class Presta {
           'certified',
           'force_as_new',
           'name',
+          'id',
+          'need_restored',
           'price',
           'link_rewrite',
           'reserved', // ==locked
@@ -423,6 +435,7 @@ export default class Presta {
           'id_default_image',
           'date_add',
           'date_upd',
+          'reference'
         ],
 
         name: this._getLanguageString,
@@ -433,9 +446,11 @@ export default class Presta {
         force_as_new: this._toBoolean,
         reserved: this._toBoolean,
         restored: this._toBoolean,
+        need_restored: this._toBoolean,
         price: this._discountPrice,
         id_category_default: this._toNumber,
         id_default_image: this._toNumber,
+        id: this._toNumber,
         date_add: this._toDate,
         date_upd: this._toDate,
       },

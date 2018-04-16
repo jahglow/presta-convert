@@ -293,7 +293,6 @@ class Presta {
             const priceInt = this._toNumber(price);
             if (prices.length === 0)
                 return priceInt;
-            console.log(prices);
             const withDiscount = priceInt - prices[0].reduction;
             return withDiscount;
         });
@@ -307,6 +306,10 @@ class Presta {
         this._toNumber = data => parseInt(data, 10);
         this._toDate = data => new Date(data).getTime();
         this._getCachedCollection = (collection, cache = false, getItem) => (itemConfig) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (!collection) {
+                console.warn('empty collection for', itemConfig);
+                return [];
+            }
             return yield Promise.all(collection.map((_item) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                 const item = typeof getItem === 'function' ? getItem(_item) : _item;
                 const cacheSource = this._cache[itemConfig.collectionName];
@@ -364,6 +367,10 @@ class Presta {
     getGenericResource(collectionName, collectionItemName, query) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const collection = yield this.getResourceList(collectionName, query);
+            if (!Array.isArray(collection)) {
+                console.log('X', 'not found', collectionName, collectionItemName, query);
+                return [];
+            }
             return yield Promise.all(collection.map(item => this.getGenericResourceItem({ item, collectionName, collectionItemName })));
         });
     }
@@ -405,6 +412,8 @@ class Presta {
                     'certified',
                     'force_as_new',
                     'name',
+                    'id',
+                    'need_restored',
                     'price',
                     'link_rewrite',
                     'reserved',
@@ -413,6 +422,7 @@ class Presta {
                     'id_default_image',
                     'date_add',
                     'date_upd',
+                    'reference'
                 ],
                 name: this._getLanguageString,
                 associations: this._getAssociations,
@@ -422,9 +432,11 @@ class Presta {
                 force_as_new: this._toBoolean,
                 reserved: this._toBoolean,
                 restored: this._toBoolean,
+                need_restored: this._toBoolean,
                 price: this._discountPrice,
                 id_category_default: this._toNumber,
                 id_default_image: this._toNumber,
+                id: this._toNumber,
                 date_add: this._toDate,
                 date_upd: this._toDate,
             },
@@ -440,3 +452,4 @@ class Presta {
 }
 exports.default = Presta;
 ;
+//# sourceMappingURL=presta.js.map

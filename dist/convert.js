@@ -348,6 +348,7 @@ class Convert {
             'titleDescription',
             'ownership',
             'staffPicked',
+            'meta',
         ].reduce((item, processorName) => Object.assign({}, item, this[processorName]()), {});
     }
     get category() {
@@ -381,7 +382,15 @@ class Convert {
         };
     }
     condition() {
-        return { itemCondition: [{ itemCondition: !this.source.restored ? 'б/у' : 'после реставрации' }] };
+        let itemCondition = 'б/у';
+        const { restored, need_restored } = this.source;
+        if (restored) {
+            itemCondition = 'после реставрации';
+        }
+        else if (need_restored) {
+            itemCondition = 'нуждается в реставрации';
+        }
+        return { itemCondition: [{ itemCondition }] };
     }
     titleDescription() {
         const { name, description } = this.source;
@@ -417,6 +426,19 @@ class Convert {
     }
     staffPicked() {
         return this.source.certified ? { staffPicked: true } : null;
+    }
+    meta() {
+        const { id, associations: { categories }, link_rewrite, reference } = this.source;
+        const catsForLink = categories.slice(1, categories.legth).map(cat => `${cat.id}-${cat.link_rewrite}`);
+        return {
+            origin: {
+                name: 'rumsiskiubaldai',
+                productId: id,
+                refNo: reference,
+                source: `https://rumsiskiubaldai.lt/ru/${catsForLink.join('/')}/${id}-${link_rewrite}`,
+                imported: new Date().getTime()
+            }
+        };
     }
 }
 exports.default = Convert;
