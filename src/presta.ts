@@ -301,7 +301,19 @@ export default class Presta {
     return result[resourceName];
   }
 
-  getResourceList = (resourceName, query) => this.resource(resourceName, resourceName, query);
+  getResourceList = (collectionName, query) => this.resource(collectionName, collectionName, query);
+
+  getListWithValues = async ({collectionName, query={}, collectionItemName}) =>{
+    const items = await this.getResourceList(collectionName,{...query, display: 'full'});
+    const parsedItems = [];
+    await items.reduce((promises,item)=>promises.then(async ()=>{
+        const parsedItem = await this.parseResourceItem({collectionItemName: collectionItemName || this.getCollectionItemName(collectionName), item, id: item.id});
+        parsedItems.push(parsedItem);
+        return;
+      }), Promise.resolve()
+    ).catch(error=>console.error(error));
+    return parsedItems;
+  }
 
   async getGenericResource(collectionName, collectionItemName, query) {
     const collection = await this.getResourceList(collectionName, query);
@@ -314,11 +326,9 @@ export default class Presta {
     );
   }
 
-  async getGenericResourceItem({item: {id}, collectionName, collectionItemName: cIN}) {
-    const collectionItemName = cIN || collectionName.substring(0, collectionName.length - 1);
+  async parseResourceItem({collectionItemName, item, id}){
     const {_sanitize, ...model} = this.models[collectionItemName];
-    const entry = await this.resource(collectionItemName, `${collectionName}/${id}`);
-    const sanitizedEntry = _sanitize ? pick(entry, _sanitize) : entry;
+    const sanitizedEntry = _sanitize ? pick(item, _sanitize) : item;
     const fieldsToParse = Object.keys(model);
     const parsedFields = await Promise.all(fieldsToParse.map(async key => await model[key](sanitizedEntry[key], id)));
     const parsedEntry = parsedFields.reduce(
@@ -328,9 +338,19 @@ export default class Presta {
     return parsedEntry;
   }
 
+  getCollectionItemName(collectionName){
+    return collectionName.substring(0, collectionName.length - 1)
+  }
+
+  async getGenericResourceItem({item: {id}, collectionName, collectionItemName: cIN}) {
+    const collectionItemName = cIN || this.getCollectionItemName(collectionName);
+    const item = await this.resource(collectionItemName, `${collectionName}/${id}`);
+    return await this.parseResourceItem({item, id, collectionItemName})
+  }
+
   _discountPrice=async (price, id)=>{
     const collectionName = 'specific_prices'
-    const prices = await this.getGenericResource(collectionName, null, {'filter[id_product]': id});
+    const prices = await this.getGenericResource(collectionName, null, {'filter[id_product]': id, display: 'full'});
     const priceInt = this._toNumber(price)
     if(prices.length === 0) return priceInt;
     const withDiscount = priceInt - prices[0].reduction;

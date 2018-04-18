@@ -286,10 +286,20 @@ const categories = [
 const toObject = collection => collection.reduce((acc, cat) => Object.assign({}, acc, { [cat.id]: cat }), {});
 class Presta {
     constructor(webServiceConfig) {
-        this.getResourceList = (resourceName, query) => this.resource(resourceName, resourceName, query);
+        this.getResourceList = (collectionName, query) => this.resource(collectionName, collectionName, query);
+        this.getListWithValues = ({ collectionName, query = {}, collectionItemName }) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const items = yield this.getResourceList(collectionName, Object.assign({}, query, { display: 'full' }));
+            const parsedItems = [];
+            yield items.reduce((promises, item) => promises.then(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                const parsedItem = yield this.parseResourceItem({ collectionItemName: collectionItemName || this.getCollectionItemName(collectionName), item, id: item.id });
+                parsedItems.push(parsedItem);
+                return;
+            })), Promise.resolve()).catch(error => console.error(error));
+            return parsedItems;
+        });
         this._discountPrice = (price, id) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const collectionName = 'specific_prices';
-            const prices = yield this.getGenericResource(collectionName, null, { 'filter[id_product]': id });
+            const prices = yield this.getGenericResource(collectionName, null, { 'filter[id_product]': id, display: 'full' });
             const priceInt = this._toNumber(price);
             if (prices.length === 0)
                 return priceInt;
@@ -374,16 +384,24 @@ class Presta {
             return yield Promise.all(collection.map(item => this.getGenericResourceItem({ item, collectionName, collectionItemName })));
         });
     }
-    getGenericResourceItem({ item: { id }, collectionName, collectionItemName: cIN }) {
+    parseResourceItem({ collectionItemName, item, id }) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const collectionItemName = cIN || collectionName.substring(0, collectionName.length - 1);
             const _a = this.models[collectionItemName], { _sanitize } = _a, model = tslib_1.__rest(_a, ["_sanitize"]);
-            const entry = yield this.resource(collectionItemName, `${collectionName}/${id}`);
-            const sanitizedEntry = _sanitize ? lodash_1.pick(entry, _sanitize) : entry;
+            const sanitizedEntry = _sanitize ? lodash_1.pick(item, _sanitize) : item;
             const fieldsToParse = Object.keys(model);
             const parsedFields = yield Promise.all(fieldsToParse.map((key) => tslib_1.__awaiter(this, void 0, void 0, function* () { return yield model[key](sanitizedEntry[key], id); })));
             const parsedEntry = parsedFields.reduce((acc, value, index) => Object.assign({}, acc, { [fieldsToParse[index]]: value }), sanitizedEntry);
             return parsedEntry;
+        });
+    }
+    getCollectionItemName(collectionName) {
+        return collectionName.substring(0, collectionName.length - 1);
+    }
+    getGenericResourceItem({ item: { id }, collectionName, collectionItemName: cIN }) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const collectionItemName = cIN || this.getCollectionItemName(collectionName);
+            const item = yield this.resource(collectionItemName, `${collectionName}/${id}`);
+            return yield this.parseResourceItem({ item, id, collectionItemName });
         });
     }
     get models() {

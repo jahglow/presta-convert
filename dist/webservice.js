@@ -39,3 +39,4 @@ class WebService {
 }
 exports.default = WebService;
 ;
+//# sourceMappingURL=webservice.js.map
