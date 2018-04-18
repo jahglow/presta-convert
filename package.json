@@ -1,5 +1,5 @@
 {
-  "name": "prestaConvert",
+  "name": "presta-convert",
   "version": "0.1.1",
   "main": "dist/index.js",
   "scripts": {
@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jahglow/prestaConvert.git"
+    "url": "git+https://github.com/jahglow/presta-convert.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jahglow/prestaConvert/issues"
+    "url": "https://github.com/jahglow/presta-convert/issues"
   },
-  "homepage": "https://github.com/jahglow/prestaConvert#readme",
+  "homepage": "https://github.com/jahglow/presta-convert#readme",
   "description": "",
   "dependencies": {
     "lodash": "^4.17.5",
