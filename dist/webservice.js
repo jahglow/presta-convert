@@ -20,8 +20,8 @@ class WebService {
     }
     makeURL(resource, query = {}) {
         const compoundQuery = Object.assign({}, this.options.query, query);
-        const qs = Object.entries(compoundQuery)
-            .map(entry => entry.join('='))
+        const qs = Object.keys(compoundQuery)
+            .map(key => [key, compoundQuery[key]].join('='))
             .join('&');
         return `${this.url}/${resource}?${qs}`;
     }
